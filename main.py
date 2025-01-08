@@ -1,5 +1,6 @@
 import os
 import sys
+from random import choice
 
 import pygame
 
@@ -18,14 +19,15 @@ class Board:
     def __init__(self):
         self.width = 5 # Кол-во клеток в ширину
         self.height = 7 # в высоту
-        self.board = [[0] * self.width for _ in range(self.height)]
+        self.board = [[Grass()] * self.width for _ in range(self.height)]
         #Значения положения поля по умолчанию
         self.left = 0
         self.top = 0
-        #размер клетки
-        self.cell_size = 120
-        self.grass = load_image('grass.jpg')
-        self.grass = pygame.transform.scale(self.grass, (self.cell_size, self.cell_size))
+        for i in range(4):
+            cell = choice((Grass(),River(),Road(), Railway()))
+            for j in range(5):
+                self.board[i][j]=cell
+
     # настройка положения поля
     def set_view(self, left, top):
         self.left = left
@@ -35,9 +37,32 @@ class Board:
     def render(self, screen):
         for y in range(self.height):
             for x in range(self.width):
-                screen.blit(self.grass,(
-                    x * self.cell_size + self.left, y * self.cell_size + self.top))
+                screen.blit(self.board[y][x].image,(
+                    x * 120 + self.left, y * 120 + self.top))
 
+class Grass(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = load_image("grass.jpg")
+        self.image = pygame.transform.scale(self.image, (120,120))
+
+class River(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = load_image("river2.jpg") # либо river.jpg
+        self.image = pygame.transform.scale(self.image, (120,120))
+
+class Road(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = load_image("road.jpg")
+        self.image = pygame.transform.scale(self.image, (120,120))
+
+class Railway(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = load_image("railway.jpg")
+        self.image = pygame.transform.scale(self.image, (120,120))
 
 def main():
     pygame.init()
@@ -51,6 +76,7 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
         screen.fill((0, 0, 0))
+
         board.render(screen)
         pygame.display.flip()
     pygame.quit()
