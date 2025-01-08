@@ -4,6 +4,7 @@ from random import choice
 
 import pygame
 
+
 def load_image(name):
     fullname = os.path.join('data', name)
     # если файл не существует, то выходим
@@ -17,16 +18,15 @@ def load_image(name):
 class Board:
     # создание поля
     def __init__(self):
-        self.width = 5 # Кол-во клеток в ширину
-        self.height = 7 # в высоту
-        self.board = [[Grass()] * self.width for _ in range(self.height)]
-        #Значения положения поля по умолчанию
+        self.width = 5  # Кол-во клеток в ширину
+        self.height = 7  # в высоту
+        self.board = [Grass() for _ in range(self.height)]
+        # Значения положения поля по умолчанию
         self.left = 0
         self.top = 0
         for i in range(4):
-            cell = choice((Grass(),River(),Road(), Railway()))
-            for j in range(5):
-                self.board[i][j]=cell
+            cell = choice((Grass(), Grass(), Grass(), River(), Road(), Road(), Railway()))
+            self.board[i] = cell
 
     # настройка положения поля
     def set_view(self, left, top):
@@ -37,32 +37,62 @@ class Board:
     def render(self, screen):
         for y in range(self.height):
             for x in range(self.width):
-                screen.blit(self.board[y][x].image,(
+                screen.blit(self.board[y].image, (
                     x * 120 + self.left, y * 120 + self.top))
+            if self.board[y].__class__ == Grass:
+                for x in range(self.width):
+                    screen.blit(self.board[y].row[x], (
+                        x * 120 + self.left, y * 120 + self.top))
+
 
 class Grass(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         self.image = load_image("grass.jpg")
-        self.image = pygame.transform.scale(self.image, (120,120))
+        self.image = pygame.transform.scale(self.image, (120, 120))
+        self.row = [choice((Tree().image, Stone().image, self.image, self.image)),
+                    choice((Tree().image, Stone().image, self.image, self.image)), self.image,
+                    choice((Tree().image, Stone().image, self.image, self.image)),
+                    choice((Tree().image, Stone().image, self.image, self.image))]
+
+
+class Tree(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = load_image("tree.jpg")
+        self.image.set_colorkey((0, 0, 0))
+        self.image = pygame.transform.scale(self.image, (120, 120))
+
+
+
+class Stone(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = load_image("stone.jpg")
+        self.image.set_colorkey((0, 0, 0))
+        self.image = pygame.transform.scale(self.image, (120, 120))
+
 
 class River(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image = load_image("river2.jpg") # либо river.jpg
-        self.image = pygame.transform.scale(self.image, (120,120))
+        self.image = load_image("river2.jpg")  # либо river.jpg
+        self.image = pygame.transform.scale(self.image, (120, 120))
+
 
 class Road(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         self.image = load_image("road.jpg")
-        self.image = pygame.transform.scale(self.image, (120,120))
+        self.image = pygame.transform.scale(self.image, (120, 120))
+
 
 class Railway(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         self.image = load_image("railway.jpg")
-        self.image = pygame.transform.scale(self.image, (120,120))
+        self.image = pygame.transform.scale(self.image, (120, 120))
+
 
 def main():
     pygame.init()
